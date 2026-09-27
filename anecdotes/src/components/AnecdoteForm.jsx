@@ -7,7 +7,7 @@ const AnecdoteForm = () => {
     actions.create(anecdote)
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     const anecdote = e.target.elements.anecdote.value
     e.target.reset()
