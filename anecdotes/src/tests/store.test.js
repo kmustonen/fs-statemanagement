@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { renderHook } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 
 import anecdoteService from '../services/anecdotes'
 import useAnecdoteStore from '../store'
-import { useAnecdotes } from '../store'
+import { useAnecdotes, useActions } from '../store'
 
-vi.mock('../services/anecdotes')
+vi.mock('../services/anecdotes', () => ({
+  default: {
+    getAll: vi.fn(),
+    update: vi.fn(),
+  }
+}))
 
 const anecdotesFromBackend = [
   {
@@ -53,7 +58,7 @@ describe('anecdote store', () => {
     expect(result.current).toStrictEqual(anecdotesFromBackend.toSorted((a, b) => b.votes - a.votes))
   })
 
-  it('anecdotes returns only anecdotes matching the filter', async () => {
+  it('anecdotes returns ancdotes matching the filter', async () => {
     anecdoteService.getAll.mockResolvedValue(anecdotesFromBackend)
     await useAnecdoteStore.getState().actions.initialize()
     await useAnecdoteStore.getState().actions.setFilter('Adding')
@@ -61,5 +66,20 @@ describe('anecdote store', () => {
     const { result } = renderHook(() => useAnecdotes())
 
     expect(result.current).toStrictEqual(anecdotesFromBackend.filter((anecdote) => anecdote.content.includes('Adding')))
+  })
+
+  it('voting increases votes of an anecdote', async () => {
+    const anecdote = anecdotesFromBackend[0]
+    useAnecdoteStore.setState({ anecdotes: [anecdote] })
+    anecdoteService.update.mockResolvedValue({ ...anecdote, votes: anecdote.votes + 1 })
+
+    const { result } = renderHook(() => useActions())
+
+    await act(async () => {
+      await result.current.vote(anecdote.id)
+    })
+
+    const { result: anecdotesResult } = renderHook(() => useAnecdotes())
+    expect(anecdotesResult.current[0].votes).toBe(anecdote.votes + 1)
   })
 })
