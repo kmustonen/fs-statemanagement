@@ -11,6 +11,19 @@ import anecdoteService from './services/anecdotes'
   'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
 ]*/
 
+let timeout = null
+
+const useNotificationStore = create((set) => ({
+  notification: null,
+  actions: {
+    setNotification: (notification) => {
+      clearTimeout(timeout)
+      set({ notification })
+      timeout = setTimeout(() => set({ notification: null }), 5000)
+    },
+  }
+}))
+
 const useAnecdoteStore = create((set, get) => ({
   anecdotes: [],
   filter: '',
@@ -18,19 +31,15 @@ const useAnecdoteStore = create((set, get) => ({
     create: async (content) => {
       const newAnecdote = await anecdoteService.createNew(content)
       set(state => ({ anecdotes: state.anecdotes.concat(newAnecdote) }))
+      useNotificationStore.getState().actions.setNotification(`you created '${newAnecdote.content}'`)
     },
     vote: async id => {
       const anecdote = get().anecdotes.find(anecdote => anecdote.id === id)
       const votedAnecdote = { ...anecdote, votes: anecdote.votes + 1 }
       const updatedAnecdote = await anecdoteService.update(id, votedAnecdote)
 
-      set(
-        state => ({
-          anecdotes: state.anecdotes.map(anecdote =>
-            anecdote.id === id ? updatedAnecdote : anecdote
-          )
-        })
-      )
+      set(state => ({ anecdotes: state.anecdotes.map(a => a.id === id ? updatedAnecdote : a) }))
+      useNotificationStore.getState().actions.setNotification(`you voted '${anecdote.content}'`)
     },
     setFilter: filter => set({ filter: filter }),
     initialize: async () => {
@@ -41,6 +50,8 @@ const useAnecdoteStore = create((set, get) => ({
 }))
 
 export const useActions = () => useAnecdoteStore((state) => state.actions)
+export const useNotification = () => useNotificationStore((state) => state.notification)
+export const useNotificationActions = () => useNotificationStore((state) => state.actions)
 
 export const useAnecdotes = () => {
   const anecdotes = useAnecdoteStore((state) => state.anecdotes)
