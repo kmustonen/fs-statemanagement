@@ -19,7 +19,7 @@ const anecdotesFromBackend = [
     votes: 5
   },
   {
-    content: 'Adding manpower to a late software project makes it later!',
+    content: 'Adding manpower to a late software project makes it often!',
     id: '21149',
     votes: 1
   }
@@ -51,5 +51,15 @@ describe('anecdote store', () => {
     const { result } = renderHook(() => useAnecdotes())
 
     expect(result.current).toStrictEqual(anecdotesFromBackend.toSorted((a, b) => b.votes - a.votes))
+  })
+
+  it('anecdotes returns only anecdotes matching the filter', async () => {
+    anecdoteService.getAll.mockResolvedValue(anecdotesFromBackend)
+    await useAnecdoteStore.getState().actions.initialize()
+    await useAnecdoteStore.getState().actions.setFilter('Adding')
+
+    const { result } = renderHook(() => useAnecdotes())
+
+    expect(result.current).toStrictEqual(anecdotesFromBackend.filter((anecdote) => anecdote.content.includes('Adding')))
   })
 })
