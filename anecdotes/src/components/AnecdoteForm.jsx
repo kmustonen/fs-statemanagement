@@ -1,4 +1,4 @@
-import { useActions } from '../store' 
+import { useActions } from '../store'
 
 const AnecdoteForm = () => {
   const actions = useActions()
@@ -14,7 +14,6 @@ const AnecdoteForm = () => {
     create(anecdote)
   }
 
-  
   return (
     <div>
       <h2>create new</h2>
