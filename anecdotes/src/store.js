@@ -1,5 +1,7 @@
 
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
+
 import anecdoteService from './services/anecdotes'
 
 /*const anecdotesAtStart = [
@@ -13,7 +15,7 @@ import anecdoteService from './services/anecdotes'
 
 let timeout = null
 
-const useNotificationStore = create((set) => ({
+const useNotificationStore = create(devtools((set) => ({
   notification: null,
   actions: {
     setNotification: (notification) => {
@@ -22,9 +24,10 @@ const useNotificationStore = create((set) => ({
       timeout = setTimeout(() => set({ notification: null }), 5000)
     },
   }
-}))
+})))
 
-const useAnecdoteStore = create((set, get) => ({
+
+const useAnecdoteStore = create(devtools((set, get) => ({
   anecdotes: [],
   filter: '',
   actions: {
@@ -54,15 +57,18 @@ const useAnecdoteStore = create((set, get) => ({
       set(() => ({ anecdotes }))
     },
   }
-}))
+})))
 
-export const useActions = () => useAnecdoteStore((state) => state.actions)
 export const useNotification = () => useNotificationStore((state) => state.notification)
 export const useNotificationActions = () => useNotificationStore((state) => state.actions)
 
+
+export const useActions = () => useAnecdoteStore((state) => state.actions)
 export const useAnecdotes = () => {
   const anecdotes = useAnecdoteStore((state) => state.anecdotes)
   const filter = useAnecdoteStore((state) => state.filter)
 
   return anecdotes.filter((anecdote) => anecdote.content.includes(filter))
 }
+
+export default useAnecdoteStore
