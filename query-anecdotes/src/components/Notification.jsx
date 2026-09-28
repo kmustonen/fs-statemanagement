@@ -1,3 +1,5 @@
+import useNotificationContext from '../hooks/useContext'
+
 const Notification = () => {
   const style = {
     border: "solid",
@@ -6,9 +8,9 @@ const Notification = () => {
     marginBottom: 5,
   }
 
-  if (true) return null
+  const { message } = useNotificationContext()
 
-  return <div data-testid="notification" style={style}></div>
+  return (message && <div data-testid="notification" style={style}>{message}</div>)
 }
 
 export default Notification
