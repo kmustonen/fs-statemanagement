@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ContextProvider } from './Context'
+import { ContextProvider } from './NotificationContext.jsx'
 
 import App from './App.jsx'
 

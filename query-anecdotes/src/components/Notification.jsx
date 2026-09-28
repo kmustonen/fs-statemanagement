@@ -1,4 +1,4 @@
-import useNotificationContext from '../hooks/useContext'
+import useNotify from '../hooks/useNotify'
 
 const Notification = () => {
   const style = {
@@ -8,7 +8,7 @@ const Notification = () => {
     marginBottom: 5,
   }
 
-  const { message } = useNotificationContext()
+  const { message } = useNotify()
 
   return (message && <div data-testid="notification" style={style}>{message}</div>)
 }
