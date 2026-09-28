@@ -19,13 +19,18 @@ export const useAnecdotes = () => {
     onSuccess: (newAnecdote) => {
       const anecdotes = queryClient.getQueryData(['anecdotes'])
       queryClient.setQueryData(['anecdotes'], anecdotes.concat(newAnecdote))
+      notify(`anecdote '${newAnecdote.content}' added`)
+    },
+    onError: () => {
+      notify('too short anecdote, must have length 5 or more')
     }
   })
 
   const updateAnecdoteMutation = useMutation({
     mutationFn: updateAnecdote,
-    onSuccess: () => {
+    onSuccess: (anecdote) => {
       queryClient.invalidateQueries({ queryKey: ['anecdotes'] })
+      notify(`anecdote '${anecdote.content}' voted`)
     }
   })
 
@@ -35,11 +40,9 @@ export const useAnecdotes = () => {
     isError: result.isError,
     addAnecdote: (content) => {
       newAnecdoteMutation.mutate({ content, votes: 0 })
-      notify(`anecdote '${content}' added`)
     },
     voteAnecdote: (anecdote) => {
       updateAnecdoteMutation.mutate({ ...anecdote, votes: anecdote.votes + 1 })
-      notify(`anecdote '${anecdote.content}' voted`)
     },
   }
 }
